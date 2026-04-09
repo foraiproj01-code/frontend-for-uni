@@ -10,62 +10,87 @@ export default function Health() {
 
   const calculateBMI = () => {
     if (!age || !height || !weight) {
+      alert("Сураныч, бардык маалыматтарды толтуруңуз!");
       return;
     }
+
+    if (height <= 0 || weight <= 0 || age <= 0) {
+      alert("Маалыматтар туура эмес!");
+      return;
+    }
+
     const heightM = height / 100;
     const bmiValue = weight / (heightM * heightM);
     setBmi(bmiValue.toFixed(1));
 
     if (bmiValue < 18.5) {
       setCategory("Салмак жетишсиз");
-      setSuggestion("Салмакты көбөйтүү, туура тамактануу, спорт менен машыгуу");
+      setSuggestion("🥗 Салмакты көбөйтүү үчүн: күнүнө 5-6 жолу тамактаныңыз, белокко бай тамактарды жеңиз, күч машыгууларын жасаңыз");
     } else if (bmiValue < 25) {
-      setCategory("Нормада");
-      setSuggestion("Саламат жашоо, спорт жана туура тамактануу улант");
+      setCategory("Нормада ✅");
+      setSuggestion("💪 Саламаттыкты сактоо үчүн: азыркы режимиңизди улантыңыз, аптасына 3-4 жолу спорт менен машыгыңыз");
     } else if (bmiValue < 30) {
       setCategory("Ашыкча салмак");
-      setSuggestion("Салмакты азайтуу, туура тамактануу, спорт менен машыгуу");
+      setSuggestion("🏃‍♂️ Салмакты азайтуу үчүн: кардио машыгууларды көбөйтүңүз, углеводду чектеңиз, сууну көп ичиңиз");
     } else {
-      setCategory("Семиздик");
-      setSuggestion("Дарыгерге кайрылыңыз, атайын диета жана спорт зарыл");
+      setCategory("Семиздик ⚠️");
+      setSuggestion("🏥 Дарыгерге кайрылыңыз! Атайын диета кармаңыз, күнүнө 10 000 кадам басыңыз, акырындык менен салмакты азайтыңыз");
     }
   };
 
   const getCategoryColor = () => {
-    if (category === "Салмак жетишсиз") return "#ffc107";
-    if (category === "Нормада") return "#4caf50";
-    if (category === "Ашыкча салмак") return "#ff9800";
+    if (category === "Салмак жетишсиз") return "#ff9800";
+    if (category === "Нормада ✅") return "#4caf50";
+    if (category === "Ашыкча салмак") return "#ffc107";
     return "#f44336";
   };
 
-  const getBMIColor = () => {
-    if (!bmi) return "#333";
-    if (bmi < 18.5) return "#ffc107";
-    if (bmi < 25) return "#4caf50";
-    if (bmi < 30) return "#ff9800";
-    return "#f44336";
+  const getCategoryEmoji = () => {
+    if (category === "Салмак жетишсиз") return "⚠️";
+    if (category === "Нормада ✅") return "😊";
+    if (category === "Ашыкча салмак") return "🤔";
+    return "🚨";
+  };
+
+  const handleReset = () => {
+    setAge("");
+    setHeight("");
+    setWeight("");
+    setBmi(null);
+    setCategory("");
+    setSuggestion("");
+  };
+
+  // BMI позициясын эсептөө (0-40 аралыгында)
+  const getBMIPosition = () => {
+    if (!bmi) return 0;
+    let position = (bmi / 40) * 100;
+    if (position > 95) position = 95;
+    if (position < 5) position = 5;
+    return position;
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <div style={styles.logo}>❤️</div>
-          <h2 style={styles.title}>Менин саламаттыгым</h2>
-          <p style={styles.subtitle}>BMI калькулятору жана сунуштар</p>
+          <div style={styles.logo}>💚</div>
+          <h2 style={styles.title}>Саламаттык индекси</h2>
+          <p style={styles.subtitle}>BMI эсептөө жана сунуштар</p>
         </div>
 
         <div style={styles.content}>
-          <div style={styles.infoBox}>
-            <p style={styles.infoText}>
-              📊 BMI (Дене массасынын индекси) - салмак менен боюнүн катышын көрсөтөт
-            </p>
+          <div style={styles.infoCard}>
+            <span style={styles.infoIcon}>ℹ️</span>
+            <span style={styles.infoText}>
+              BMI (Body Mass Index) - дене салмагынын индекси
+            </span>
           </div>
 
           <div style={styles.form}>
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                <span style={styles.labelIcon}>🎂</span> Жашы
+                <span style={styles.labelIcon}>🎂</span> Жашыңыз
               </label>
               <input
                 type="number"
@@ -78,7 +103,7 @@ export default function Health() {
 
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                <span style={styles.labelIcon}>📏</span> Бою (см)
+                <span style={styles.labelIcon}>📏</span> Боюңуз (см)
               </label>
               <input
                 type="number"
@@ -91,7 +116,7 @@ export default function Health() {
 
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                <span style={styles.labelIcon}>⚖️</span> Салмагы (кг)
+                <span style={styles.labelIcon}>⚖️</span> Салмагыңыз (кг)
               </label>
               <input
                 type="number"
@@ -102,9 +127,14 @@ export default function Health() {
               />
             </div>
 
-            <button onClick={calculateBMI} style={styles.button}>
-              BMI эсептөө
-            </button>
+            <div style={styles.buttonGroup}>
+              <button onClick={calculateBMI} style={styles.button}>
+                📊 BMI эсептөө
+              </button>
+              <button onClick={handleReset} style={styles.resetButton}>
+                🔄 Тазалоо
+              </button>
+            </div>
           </div>
 
           {bmi && (
@@ -117,31 +147,57 @@ export default function Health() {
               </div>
 
               <div style={styles.resultDetails}>
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Категория:</span>
-                  <span style={{...styles.detailValue, color: getCategoryColor()}}>
-                    {category}
-                  </span>
+                <div style={styles.detailRow}>
+                  <div style={styles.detailIcon}>{getCategoryEmoji()}</div>
+                  <div style={styles.detailContent}>
+                    <div style={styles.detailLabel}>Категория</div>
+                    <div style={{...styles.detailValue, color: getCategoryColor(), fontWeight: "bold"}}>
+                      {category}
+                    </div>
+                  </div>
                 </div>
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Сунуштар:</span>
-                  <span style={styles.detailValue}>{suggestion}</span>
+
+                <div style={styles.detailRow}>
+                  <div style={styles.detailIcon}>💡</div>
+                  <div style={styles.detailContent}>
+                    <div style={styles.detailLabel}>Сунуштар</div>
+                    <div style={styles.detailValue}>{suggestion}</div>
+                  </div>
                 </div>
               </div>
 
-              <div style={styles.bmiScale}>
-                <div style={styles.scaleBar}>
-                  <div style={{...styles.scaleSegment, backgroundColor: "#ffc107"}}>18.5</div>
-                  <div style={{...styles.scaleSegment, backgroundColor: "#4caf50"}}>25</div>
-                  <div style={{...styles.scaleSegment, backgroundColor: "#ff9800"}}>30</div>
-                  <div style={{...styles.scaleSegment, backgroundColor: "#f44336"}}>40+</div>
+              {/* BMI шкаласы - оңдолгон версия */}
+              <div style={styles.bmiScaleContainer}>
+                <div style={styles.scaleLabels}>
+                  <span style={styles.scaleLabelText}>18.5</span>
+                  <span style={styles.scaleLabelText}>25</span>
+                  <span style={styles.scaleLabelText}>30</span>
+                  <span style={styles.scaleLabelText}>40</span>
                 </div>
-                <div style={styles.scaleIndicator} style={{
-                  ...styles.scaleIndicator,
-                  left: `${Math.min((bmi / 40) * 100, 100)}%`,
-                  backgroundColor: getBMIColor()
-                }}>
-                  ▼
+                <div style={styles.scaleBar}>
+                  <div style={{...styles.scaleSegment, backgroundColor: "#ff9800", width: "25%"}}></div>
+                  <div style={{...styles.scaleSegment, backgroundColor: "#4caf50", width: "25%"}}></div>
+                  <div style={{...styles.scaleSegment, backgroundColor: "#ffc107", width: "25%"}}></div>
+                  <div style={{...styles.scaleSegment, backgroundColor: "#f44336", width: "25%"}}></div>
+                </div>
+                <div style={styles.scalePointerWrapper}>
+                  <div 
+                    style={{
+                      ...styles.scalePointer,
+                      left: `${getBMIPosition()}%`
+                    }}
+                  >
+                    <div style={styles.pointerArrow}>▼</div>
+                    <div style={{...styles.pointerValue, backgroundColor: getCategoryColor()}}>
+                      {bmi}
+                    </div>
+                  </div>
+                </div>
+                <div style={styles.scaleCategories}>
+                  <span style={styles.categoryLabel}>Жетишсиз</span>
+                  <span style={styles.categoryLabel}>Норма</span>
+                  <span style={styles.categoryLabel}>Ашыкча</span>
+                  <span style={styles.categoryLabel}>Семиздик</span>
                 </div>
               </div>
             </div>
@@ -160,58 +216,65 @@ const styles = {
     justifyContent: "center",
     background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     padding: "20px",
-    fontFamily: "'Segoe UI', 'Roboto', 'Oxygen', sans-serif",
+    fontFamily: "'Segoe UI', 'Roboto', sans-serif",
   },
   card: {
-    maxWidth: "550px",
+    maxWidth: "600px",
     width: "100%",
     backgroundColor: "white",
-    borderRadius: "20px",
-    boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+    borderRadius: "24px",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
     overflow: "hidden",
-    animation: "fadeInUp 0.5s ease",
+    animation: "slideUp 0.5s ease",
   },
   header: {
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    padding: "30px 30px",
+    background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+    padding: "35px 30px",
     textAlign: "center",
     color: "white",
   },
   logo: {
-    fontSize: "48px",
+    fontSize: "54px",
     marginBottom: "10px",
   },
   title: {
     margin: "0",
     fontSize: "28px",
-    fontWeight: "600",
+    fontWeight: "700",
     letterSpacing: "-0.5px",
   },
   subtitle: {
     margin: "10px 0 0",
     fontSize: "14px",
-    opacity: "0.9",
+    opacity: "0.95",
   },
   content: {
     padding: "30px",
   },
-  infoBox: {
-    backgroundColor: "#e3f2fd",
-    padding: "12px",
-    borderRadius: "10px",
+  infoCard: {
+    backgroundColor: "#e8f5e9",
+    padding: "12px 15px",
+    borderRadius: "12px",
     marginBottom: "25px",
-    borderLeft: "4px solid #2196f3",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    borderLeft: "4px solid #4caf50",
+  },
+  infoIcon: {
+    fontSize: "18px",
+    fontWeight: "bold",
   },
   infoText: {
     margin: 0,
     fontSize: "13px",
-    color: "#1976d2",
-    lineHeight: "1.5",
+    color: "#2e7d32",
+    flex: 1,
   },
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "20px",
+    gap: "18px",
     marginBottom: "20px",
   },
   inputGroup: {
@@ -222,116 +285,191 @@ const styles = {
     marginBottom: "8px",
     color: "#333",
     fontSize: "14px",
-    fontWeight: "500",
+    fontWeight: "600",
   },
   labelIcon: {
-    marginRight: "5px",
+    marginRight: "8px",
+    fontSize: "16px",
   },
   input: {
     width: "100%",
-    padding: "12px 15px",
+    padding: "12px 16px",
     fontSize: "16px",
-    border: "2px solid #e1e5e9",
-    borderRadius: "10px",
+    border: "2px solid #e0e0e0",
+    borderRadius: "12px",
     transition: "all 0.3s ease",
     outline: "none",
     boxSizing: "border-box",
     fontFamily: "inherit",
   },
+  buttonGroup: {
+    display: "flex",
+    gap: "12px",
+    marginTop: "10px",
+  },
   button: {
-    width: "100%",
+    flex: 2,
     padding: "14px",
-    backgroundColor: "#667eea",
+    backgroundColor: "#4caf50",
     color: "white",
     border: "none",
-    borderRadius: "10px",
+    borderRadius: "12px",
     fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
-    marginTop: "10px",
+    fontFamily: "inherit",
+  },
+  resetButton: {
+    flex: 1,
+    padding: "14px",
+    backgroundColor: "#f44336",
+    color: "white",
+    border: "none",
+    borderRadius: "12px",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
     fontFamily: "inherit",
   },
   resultCard: {
     marginTop: "30px",
-    padding: "20px",
-    background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-    borderRadius: "15px",
-    textAlign: "center",
+    padding: "25px",
+    background: "linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)",
+    borderRadius: "20px",
+    animation: "fadeIn 0.5s ease",
   },
   bmiCircle: {
-    width: "150px",
-    height: "150px",
-    margin: "0 auto 20px",
+    width: "140px",
+    height: "140px",
+    margin: "0 auto 25px",
     backgroundColor: "white",
     borderRadius: "50%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
   },
   bmiValue: {
     textAlign: "center",
   },
   bmiNumber: {
     display: "block",
-    fontSize: "36px",
+    fontSize: "40px",
     fontWeight: "bold",
     color: "#333",
+    lineHeight: 1,
   },
   bmiUnit: {
     display: "block",
     fontSize: "14px",
     color: "#666",
-    marginTop: "5px",
+    marginTop: "8px",
   },
   resultDetails: {
-    textAlign: "left",
-    marginBottom: "20px",
+    marginBottom: "25px",
   },
-  detailItem: {
-    marginBottom: "12px",
-    padding: "8px",
+  detailRow: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "12px",
+    marginBottom: "16px",
+    padding: "12px",
     backgroundColor: "white",
-    borderRadius: "8px",
+    borderRadius: "12px",
+  },
+  detailIcon: {
+    fontSize: "24px",
+  },
+  detailContent: {
+    flex: 1,
   },
   detailLabel: {
-    fontWeight: "600",
-    color: "#555",
-    marginRight: "10px",
+    fontSize: "12px",
+    color: "#666",
+    marginBottom: "4px",
   },
   detailValue: {
+    fontSize: "14px",
     color: "#333",
+    lineHeight: 1.5,
   },
-  bmiScale: {
-    marginTop: "20px",
-    position: "relative",
+  // BMI шкаласынын стилдери - оңдолгон
+  bmiScaleContainer: {
+    marginTop: "30px",
+    padding: "15px 0",
+  },
+  scaleLabels: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: "8px",
+    padding: "0 5px",
+  },
+  scaleLabelText: {
+    fontSize: "11px",
+    color: "#666",
+    fontWeight: "500",
   },
   scaleBar: {
     display: "flex",
-    height: "8px",
-    borderRadius: "4px",
+    height: "12px",
+    borderRadius: "6px",
     overflow: "hidden",
-    marginBottom: "10px",
+    marginBottom: "5px",
   },
   scaleSegment: {
-    flex: 1,
     height: "100%",
   },
-  scaleIndicator: {
+  scalePointerWrapper: {
     position: "relative",
+    height: "40px",
+    marginTop: "5px",
+  },
+  scalePointer: {
+    position: "absolute",
+    transform: "translateX(-50%)",
     textAlign: "center",
+    transition: "left 0.5s ease",
+  },
+  pointerArrow: {
     fontSize: "20px",
-    transition: "left 0.3s ease",
+    color: "#333",
+    lineHeight: 1,
+  },
+  pointerValue: {
+    position: "absolute",
+    top: "-28px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    color: "white",
+    padding: "2px 8px",
+    borderRadius: "20px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    whiteSpace: "nowrap",
+    minWidth: "40px",
+  },
+  scaleCategories: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: "10px",
+    padding: "0 5px",
+  },
+  categoryLabel: {
+    fontSize: "10px",
+    color: "#888",
+    textAlign: "center",
+    flex: 1,
   },
 };
 
-// Глобалдык стилдер (index.js же App.jsке кошуңуз)
+// Глобалдык стилдер
 const globalStyles = `
-  @keyframes fadeInUp {
+  @keyframes slideUp {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(50px);
     }
     to {
       opacity: 1;
@@ -339,16 +477,30 @@ const globalStyles = `
     }
   }
   
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
   input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    border-color: #4caf50;
+    box-shadow: 0 0 0 3px rgba(76,175,80,0.1);
     outline: none;
   }
   
   button:hover {
-    background-color: #764ba2;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  }
+  
+  button:active {
+    transform: translateY(0);
   }
   
   input[type="number"]::-webkit-inner-spin-button,
